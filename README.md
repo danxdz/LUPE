@@ -2,7 +2,13 @@
 
 A modern web-based OCR (Optical Character Recognition) application that extracts text from images using your camera or uploaded files. Built with vanilla HTML/JavaScript and powered by Tesseract.js.
 
-## 🚀 Features
+## 🚀 Live Demo
+
+Deploy your own version instantly:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/danxdz/LUPE)
+
+## ✨ Features
 
 - **📷 Camera Capture**: Use your device camera to capture images in real-time
 - **📁 File Upload**: Upload images from your device (drag & drop supported)
@@ -14,202 +20,121 @@ A modern web-based OCR (Optical Character Recognition) application that extracts
 
 ## 📦 Files
 
-1. **`index.html`** - Basic camera-only version
-2. **`index-with-upload.html`** - Enhanced version with both camera and file upload
-3. **`server.py`** - Simple Python HTTP server for local testing
-4. **`vercel.json`** - Vercel deployment configuration
-5. **`package.json`** - Project metadata and scripts
+- **`index.html`** - Main application with camera and upload support
+- **`index-basic.html`** - Basic camera-only version
+- **`README.md`** - This documentation
 
-## 🛠️ Installation & Usage
+## 🚀 Deploy to Vercel (Recommended)
 
-### Quick Start (Local Development)
-
-1. **Start the server:**
-   ```bash
-   python3 server.py
-   ```
-
-2. **Open in browser:**
-   ```
-   http://localhost:8000
-   ```
-   
-3. **Choose your version:**
-   - Basic version: `http://localhost:8000/index.html`
-   - Enhanced version: `http://localhost:8000/index-with-upload.html`
-
-### 🚀 Deploy to Vercel
-
-#### Option 1: Deploy with Vercel CLI
-
-1. **Install Vercel CLI:**
-   ```bash
-   npm i -g vercel
-   ```
-
-2. **Deploy:**
-   ```bash
-   vercel
-   ```
-
-3. **Follow the prompts** and your app will be live!
-
-#### Option 2: Deploy via GitHub
-
-1. **Push to GitHub** (already done!)
-
-2. **Go to [Vercel](https://vercel.com)**
-
-3. **Import your GitHub repository:**
-   - Click "New Project"
-   - Import `danxdz/LUPE`
-   - Click "Deploy"
-
-4. **Your app will be live at:**
-   - `https://your-project-name.vercel.app`
-
-#### Option 3: Deploy with One Click
-
+### Option 1: One-Click Deploy
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/danxdz/LUPE)
 
-### 🌐 Deploy to Other Platforms
+### Option 2: Import from GitHub
+1. Go to [vercel.com](https://vercel.com)
+2. Click "New Project"
+3. Import `danxdz/LUPE`
+4. Click "Deploy"
 
-#### GitHub Pages
-1. Go to Settings → Pages
-2. Select source: "Deploy from a branch"
-3. Choose "main" branch and "/" (root)
-4. Save and wait for deployment
-
-#### Netlify
-1. Drag and drop your project folder to [Netlify Drop](https://app.netlify.com/drop)
-2. Or connect GitHub and auto-deploy
-
-#### Static Hosting
-This app works on any static hosting service since it's pure HTML/JS/CSS:
-- AWS S3 + CloudFront
-- Google Cloud Storage
-- Azure Static Web Apps
-- Surge.sh
-- Render
-
-### Alternative: Using Any HTTP Server
-
-You can use any HTTP server. For example:
-
-**Using Node.js:**
+### Option 3: Vercel CLI
 ```bash
-npx http-server -p 8000
+npx vercel
 ```
 
-**Using Python (alternative):**
+## 🌐 Deploy to Other Platforms
+
+### Netlify
+- Drag and drop the project folder to [Netlify Drop](https://app.netlify.com/drop)
+- Or connect GitHub for auto-deploy
+
+### GitHub Pages
+1. Go to Settings → Pages
+2. Source: Deploy from branch
+3. Branch: main / (root)
+4. Save
+
+### Any Static Host
+Works on any static hosting:
+- Surge.sh: `npx surge`
+- Render.com
+- Firebase Hosting
+- AWS S3 + CloudFront
+
+## 💻 Local Development
+
+### Option 1: Python HTTP Server
 ```bash
 python3 -m http.server 8000
 ```
+
+### Option 2: Node.js HTTP Server
+```bash
+npx http-server
+```
+
+### Option 3: VS Code Live Server
+Install "Live Server" extension and right-click → "Open with Live Server"
+
+Then open: `http://localhost:8000`
 
 ## 📱 How to Use
 
 ### Camera Mode
 1. Allow camera permissions when prompted
-2. Position the text within the frame
+2. Position text within the frame
 3. Click "📸 Capture Image"
 4. Wait for OCR processing
-5. Copy the extracted text if needed
+5. Copy extracted text
 
-### Upload Mode (Enhanced Version)
+### Upload Mode
 1. Click "📁 Upload Image" tab
-2. Either:
-   - Click to browse and select an image
-   - Drag and drop an image onto the upload area
+2. Click to browse or drag & drop an image
 3. Wait for OCR processing
-4. Copy the extracted text
+4. Copy extracted text
 
 ## 🔧 Technical Details
 
-### Technologies Used
-- **Tesseract.js v5**: JavaScript OCR library
-- **MediaDevices API**: For camera access
-- **Canvas API**: For image manipulation
-- **File API**: For file uploads
-- **Clipboard API**: For copying text
+- **Tesseract.js v5** - OCR processing
+- **MediaDevices API** - Camera access
+- **Canvas API** - Image manipulation
+- **File API** - File uploads
+- **No backend required** - Runs entirely in browser
+- **No build process** - Pure HTML/JS/CSS
 
-### Browser Requirements
-- Modern browser with camera support
-- HTTPS or localhost for camera access
+## 📝 Browser Requirements
+
+- Modern browser (Chrome, Firefox, Safari, Edge)
+- HTTPS or localhost for camera
 - JavaScript enabled
 
-### Supported Image Formats
-- JPG/JPEG
-- PNG
-- GIF
-- WebP
+## 🎯 Tips for Best OCR Results
 
-## ⚠️ Important Notes
+- ✅ Good lighting
+- ✅ Clear, printed text
+- ✅ High contrast
+- ✅ Steady camera
+- ✅ Proper focus
 
-1. **Camera Access**: Requires HTTPS or localhost due to browser security
-2. **Performance**: OCR processing time depends on image size and quality
-3. **Accuracy**: Best results with clear, well-lit text images
-4. **Languages**: Currently configured for English text recognition
-5. **Vercel Deployment**: Camera will work on Vercel since it provides HTTPS by default
-
-## 🎯 Tips for Best Results
-
-- **Good Lighting**: Ensure text is well-lit and clearly visible
-- **Steady Camera**: Hold device steady when capturing
-- **Clear Text**: Works best with printed text rather than handwriting
-- **Contrast**: High contrast between text and background improves accuracy
-- **Resolution**: Higher resolution images generally yield better results
-
-## 🚀 Features Comparison
-
-| Feature | Basic Version | Enhanced Version |
-|---------|--------------|------------------|
-| Camera Capture | ✅ | ✅ |
-| File Upload | ❌ | ✅ |
-| Drag & Drop | ❌ | ✅ |
-| Mode Switching | ❌ | ✅ |
-| Confidence Display | ❌ | ✅ |
-
-## 📝 Customization
-
-You can customize the OCR settings in the JavaScript code:
-
-```javascript
-// Add more languages
-const worker = await Tesseract.createWorker(['eng', 'fra', 'deu']);
-
-// Adjust OCR parameters
-await worker.setParameters({
-    tessedit_char_whitelist: '...',  // Allowed characters
-    preserve_interword_spaces: '1',   // Keep spaces
-});
-```
-
-## 🐛 Troubleshooting
+## ⚠️ Troubleshooting
 
 **Camera not working?**
-- Check browser permissions
-- Ensure using HTTPS or localhost
-- Try the upload mode instead
+- Check permissions in browser settings
+- Must use HTTPS or localhost
+- Try upload mode as alternative
 
 **OCR not accurate?**
-- Use clearer images
+- Use clearer image
 - Ensure good lighting
-- Try adjusting camera angle
+- Try different angle
 
-**Server not starting?**
-- Check Python is installed
-- Ensure port 8000 is available
-- Try a different port if needed
-
-**Vercel deployment issues?**
-- Make sure all files are committed
-- Check Vercel dashboard for build logs
-- Ensure repository is public or Vercel has access
+**Deployment issues?**
+- Make sure repository is public
+- Check Vercel has GitHub access
+- Try deploying without config files
 
 ## 📄 License
 
-This project uses Tesseract.js which is licensed under Apache 2.0.
+Open source - uses Tesseract.js (Apache 2.0)
 
-## 🎉 Ready to Use!
+---
 
-The application is ready to deploy or run locally. For instant deployment, use the Vercel button above!
+**Ready to deploy!** Click the Vercel button above for instant deployment 🚀

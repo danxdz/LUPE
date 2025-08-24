@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web OCR Scanner - Camera & Upload</title>
+    <title>Web OCR Camera App</title>
     <style>
         * {
             margin: 0;
@@ -51,34 +51,6 @@
             padding: 20px;
         }
 
-        .mode-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            background: #f1f5f9;
-            padding: 5px;
-            border-radius: 10px;
-        }
-
-        .mode-btn {
-            flex: 1;
-            padding: 10px;
-            background: transparent;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #64748b;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .mode-btn.active {
-            background: white;
-            color: #667eea;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
         .camera-container {
             position: relative;
             width: 100%;
@@ -94,46 +66,6 @@
         }
 
         #canvas {
-            display: none;
-        }
-
-        .upload-area {
-            border: 2px dashed #cbd5e1;
-            border-radius: 10px;
-            padding: 40px 20px;
-            text-align: center;
-            transition: all 0.3s;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-
-        .upload-area:hover {
-            border-color: #667eea;
-            background: #f8fafc;
-        }
-
-        .upload-area.dragover {
-            border-color: #667eea;
-            background: #ede9fe;
-        }
-
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-
-        .upload-text {
-            color: #475569;
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        .upload-subtext {
-            color: #94a3b8;
-            font-size: 14px;
-        }
-
-        #fileInput {
             display: none;
         }
 
@@ -305,16 +237,10 @@
     <div class="container">
         <div class="header">
             <h1>📷 Web OCR Scanner</h1>
-            <p>Extract text from camera or uploaded images</p>
+            <p>Capture images and extract text instantly</p>
         </div>
         
         <div class="content">
-            <!-- Mode Selector -->
-            <div class="mode-selector">
-                <button id="cameraMode" class="mode-btn active">📷 Camera</button>
-                <button id="uploadMode" class="mode-btn">📁 Upload Image</button>
-            </div>
-
             <!-- Camera View -->
             <div id="cameraView" class="camera-section">
                 <div class="camera-container">
@@ -327,16 +253,6 @@
                         📸 Capture Image
                     </button>
                 </div>
-            </div>
-
-            <!-- Upload View -->
-            <div id="uploadView" class="upload-section hidden">
-                <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">📤</div>
-                    <div class="upload-text">Click to upload or drag & drop</div>
-                    <div class="upload-subtext">Supports JPG, PNG, GIF, WebP</div>
-                </div>
-                <input type="file" id="fileInput" accept="image/*">
             </div>
 
             <!-- Image Preview View -->
@@ -361,7 +277,7 @@
 
                 <div class="button-group">
                     <button id="retakeBtn" class="button secondary">
-                        🔄 New Image
+                        🔄 Retake Photo
                     </button>
                     <button id="copyBtn" class="button" style="display: none;">
                         📋 Copy Text
@@ -382,7 +298,6 @@
         const retakeBtn = document.getElementById('retakeBtn');
         const copyBtn = document.getElementById('copyBtn');
         const cameraView = document.getElementById('cameraView');
-        const uploadView = document.getElementById('uploadView');
         const imageView = document.getElementById('imageView');
         const capturedImage = document.getElementById('capturedImage');
         const loadingContainer = document.getElementById('loadingContainer');
@@ -390,84 +305,8 @@
         const resultText = document.getElementById('resultText');
         const errorContainer = document.getElementById('errorContainer');
         const errorText = document.getElementById('errorText');
-        const cameraMode = document.getElementById('cameraMode');
-        const uploadMode = document.getElementById('uploadMode');
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
 
         let stream = null;
-        let currentMode = 'camera';
-
-        // Mode switching
-        cameraMode.addEventListener('click', () => {
-            if (currentMode !== 'camera') {
-                currentMode = 'camera';
-                cameraMode.classList.add('active');
-                uploadMode.classList.remove('active');
-                cameraView.classList.remove('hidden');
-                uploadView.classList.add('hidden');
-                imageView.classList.add('hidden');
-                initCamera();
-            }
-        });
-
-        uploadMode.addEventListener('click', () => {
-            if (currentMode !== 'upload') {
-                currentMode = 'upload';
-                uploadMode.classList.add('active');
-                cameraMode.classList.remove('active');
-                uploadView.classList.remove('hidden');
-                cameraView.classList.add('hidden');
-                imageView.classList.add('hidden');
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                }
-            }
-        });
-
-        // File upload handling
-        uploadArea.addEventListener('click', () => {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file && file.type.startsWith('image/')) {
-                processUploadedFile(file);
-            }
-        });
-
-        // Drag and drop handling
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                processUploadedFile(file);
-            }
-        });
-
-        // Process uploaded file
-        function processUploadedFile(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                capturedImage.src = e.target.result;
-                uploadView.classList.add('hidden');
-                imageView.classList.remove('hidden');
-                performOCR(e.target.result);
-            };
-            reader.readAsDataURL(file);
-        }
 
         // Initialize camera
         async function initCamera() {
@@ -490,12 +329,8 @@
                 };
             } catch (err) {
                 console.error('Error accessing camera:', err);
-                showError('Camera access denied. Please use the Upload mode instead.');
+                showError('Camera access denied. Please allow camera permissions and refresh the page.');
                 captureBtn.textContent = '❌ Camera Not Available';
-                // Auto-switch to upload mode if camera fails
-                setTimeout(() => {
-                    uploadMode.click();
-                }, 2000);
             }
         }
 
@@ -535,8 +370,8 @@
             copyBtn.style.display = 'none';
             
             try {
-                // Create a Tesseract worker with multiple language support
-                const worker = await Tesseract.createWorker(['eng'], 1, {
+                // Create a Tesseract worker
+                const worker = await Tesseract.createWorker('eng', 1, {
                     logger: m => {
                         // Log progress
                         if (m.status === 'recognizing text') {
@@ -547,14 +382,8 @@
                     }
                 });
                 
-                // Set OCR parameters for better accuracy
-                await worker.setParameters({
-                    tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .,!?;:\'"()-/@#$%&*+=[]{}\\|<>_~`',
-                    preserve_interword_spaces: '1',
-                });
-                
                 // Perform OCR
-                const { data: { text, confidence } } = await worker.recognize(imageDataUrl);
+                const { data: { text } } = await worker.recognize(imageDataUrl);
                 
                 // Terminate worker
                 await worker.terminate();
@@ -568,14 +397,6 @@
                     resultText.classList.remove('no-text');
                     resultContainer.classList.remove('hidden');
                     copyBtn.style.display = 'block';
-                    
-                    // Show confidence if it's low
-                    if (confidence < 60) {
-                        const confNote = document.createElement('div');
-                        confNote.style.cssText = 'color: #f59e0b; font-size: 12px; margin-top: 10px;';
-                        confNote.textContent = `⚠️ Low confidence (${Math.round(confidence)}%). Try a clearer image for better results.`;
-                        resultContainer.appendChild(confNote);
-                    }
                 } else {
                     resultText.innerHTML = '<span class="no-text">No text detected in the image. Try capturing a clearer image with text.</span>';
                     resultText.classList.add('no-text');
@@ -595,27 +416,18 @@
             errorContainer.classList.remove('hidden');
         }
 
-        // Retake/new image
+        // Retake photo
         function retakePhoto() {
-            // Clear file input
-            fileInput.value = '';
-            
-            // Switch views based on current mode
+            // Switch views
             imageView.classList.add('hidden');
-            if (currentMode === 'camera') {
-                cameraView.classList.remove('hidden');
-                initCamera();
-            } else {
-                uploadView.classList.remove('hidden');
-            }
+            cameraView.classList.remove('hidden');
             
             // Clear results
             resultText.textContent = '';
             errorContainer.classList.add('hidden');
             
-            // Remove any confidence notes
-            const confNotes = resultContainer.querySelectorAll('div[style*="color: #f59e0b"]');
-            confNotes.forEach(note => note.remove());
+            // Restart camera
+            initCamera();
         }
 
         // Copy text to clipboard
@@ -635,23 +447,7 @@
                 }, 2000);
             } catch (err) {
                 console.error('Failed to copy text:', err);
-                // Fallback for older browsers
-                const textArea = document.createElement('textarea');
-                textArea.value = resultText.textContent;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                
-                // Show feedback
-                const originalText = copyBtn.textContent;
-                copyBtn.textContent = '✅ Copied!';
-                copyBtn.disabled = true;
-                
-                setTimeout(() => {
-                    copyBtn.textContent = originalText;
-                    copyBtn.disabled = false;
-                }, 2000);
+                showError('Failed to copy text to clipboard.');
             }
         }
 
@@ -662,9 +458,7 @@
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
-            if (currentMode === 'camera') {
-                initCamera();
-            }
+            initCamera();
         });
 
         // Cleanup on page unload
