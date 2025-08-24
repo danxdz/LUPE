@@ -17,10 +17,12 @@ A modern web-based OCR (Optical Character Recognition) application that extracts
 1. **`index.html`** - Basic camera-only version
 2. **`index-with-upload.html`** - Enhanced version with both camera and file upload
 3. **`server.py`** - Simple Python HTTP server for local testing
+4. **`vercel.json`** - Vercel deployment configuration
+5. **`package.json`** - Project metadata and scripts
 
 ## 🛠️ Installation & Usage
 
-### Quick Start
+### Quick Start (Local Development)
 
 1. **Start the server:**
    ```bash
@@ -35,6 +37,60 @@ A modern web-based OCR (Optical Character Recognition) application that extracts
 3. **Choose your version:**
    - Basic version: `http://localhost:8000/index.html`
    - Enhanced version: `http://localhost:8000/index-with-upload.html`
+
+### 🚀 Deploy to Vercel
+
+#### Option 1: Deploy with Vercel CLI
+
+1. **Install Vercel CLI:**
+   ```bash
+   npm i -g vercel
+   ```
+
+2. **Deploy:**
+   ```bash
+   vercel
+   ```
+
+3. **Follow the prompts** and your app will be live!
+
+#### Option 2: Deploy via GitHub
+
+1. **Push to GitHub** (already done!)
+
+2. **Go to [Vercel](https://vercel.com)**
+
+3. **Import your GitHub repository:**
+   - Click "New Project"
+   - Import `danxdz/LUPE`
+   - Click "Deploy"
+
+4. **Your app will be live at:**
+   - `https://your-project-name.vercel.app`
+
+#### Option 3: Deploy with One Click
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/danxdz/LUPE)
+
+### 🌐 Deploy to Other Platforms
+
+#### GitHub Pages
+1. Go to Settings → Pages
+2. Select source: "Deploy from a branch"
+3. Choose "main" branch and "/" (root)
+4. Save and wait for deployment
+
+#### Netlify
+1. Drag and drop your project folder to [Netlify Drop](https://app.netlify.com/drop)
+2. Or connect GitHub and auto-deploy
+
+#### Static Hosting
+This app works on any static hosting service since it's pure HTML/JS/CSS:
+- AWS S3 + CloudFront
+- Google Cloud Storage
+- Azure Static Web Apps
+- Surge.sh
+- Render
 
 ### Alternative: Using Any HTTP Server
 
@@ -93,6 +149,7 @@ python3 -m http.server 8000
 2. **Performance**: OCR processing time depends on image size and quality
 3. **Accuracy**: Best results with clear, well-lit text images
 4. **Languages**: Currently configured for English text recognition
+5. **Vercel Deployment**: Camera will work on Vercel since it provides HTTPS by default
 
 ## 🎯 Tips for Best Results
 
@@ -144,10 +201,15 @@ await worker.setParameters({
 - Ensure port 8000 is available
 - Try a different port if needed
 
+**Vercel deployment issues?**
+- Make sure all files are committed
+- Check Vercel dashboard for build logs
+- Ensure repository is public or Vercel has access
+
 ## 📄 License
 
 This project uses Tesseract.js which is licensed under Apache 2.0.
 
 ## 🎉 Ready to Use!
 
-The application is now running at `http://localhost:8000`. Open it in your browser and start extracting text from images!
+The application is ready to deploy or run locally. For instant deployment, use the Vercel button above!
