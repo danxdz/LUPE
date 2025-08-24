@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web OCR Camera App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #video, #canvas {
+            width: 100%;
+            display: block;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .captured-image {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            flex: 1;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .button.secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .button.secondary:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        .result-container {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .result-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-text {
+            color: #475569;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .no-text {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 60%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            pointer-events: none;
+        }
+
+        .camera-overlay::before {
+            content: "Position text within frame";
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 4px 12px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                border-radius: 0;
+                max-width: 100%;
+                height: 100vh;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📷 Web OCR Scanner</h1>
+            <p>Capture images and extract text instantly</p>
+        </div>
+        
+        <div class="content">
+            <!-- Camera View -->
+            <div id="cameraView" class="camera-section">
+                <div class="camera-container">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas"></canvas>
+                    <div class="camera-overlay"></div>
+                </div>
+                <div class="button-group">
+                    <button id="captureBtn" class="button" disabled>
+                        📸 Capture Image
+                    </button>
+                </div>
+            </div>
+
+            <!-- Image Preview View -->
+            <div id="imageView" class="image-section hidden">
+                <img id="capturedImage" class="captured-image" alt="Captured image">
+                
+                <div id="loadingContainer" class="loading-container hidden">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Processing image with OCR...</div>
+                </div>
+
+                <div id="resultContainer" class="result-container hidden">
+                    <div class="result-header">
+                        📝 Extracted Text
+                    </div>
+                    <div id="resultText" class="result-text"></div>
+                </div>
+
+                <div id="errorContainer" class="error-message hidden">
+                    ⚠️ <span id="errorText"></span>
+                </div>
+
+                <div class="button-group">
+                    <button id="retakeBtn" class="button secondary">
+                        🔄 Retake Photo
+                    </button>
+                    <button id="copyBtn" class="button" style="display: none;">
+                        📋 Copy Text
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Tesseract.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    
+    <script>
+        // DOM Elements
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const retakeBtn = document.getElementById('retakeBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const cameraView = document.getElementById('cameraView');
+        const imageView = document.getElementById('imageView');
+        const capturedImage = document.getElementById('capturedImage');
+        const loadingContainer = document.getElementById('loadingContainer');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultText = document.getElementById('resultText');
+        const errorContainer = document.getElementById('errorContainer');
+        const errorText = document.getElementById('errorText');
+
+        let stream = null;
+
+        // Initialize camera
+        async function initCamera() {
+            try {
+                // Request camera permission
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment', // Use back camera on mobile
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    } 
+                });
+                
+                video.srcObject = stream;
+                
+                // Enable capture button when video is ready
+                video.onloadedmetadata = () => {
+                    captureBtn.disabled = false;
+                    captureBtn.textContent = '📸 Capture Image';
+                };
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                showError('Camera access denied. Please allow camera permissions and refresh the page.');
+                captureBtn.textContent = '❌ Camera Not Available';
+            }
+        }
+
+        // Capture image from video
+        function captureImage() {
+            // Set canvas dimensions to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Draw video frame to canvas
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Convert canvas to image
+            const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            capturedImage.src = imageDataUrl;
+            
+            // Switch views
+            cameraView.classList.add('hidden');
+            imageView.classList.remove('hidden');
+            
+            // Stop camera stream temporarily
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Run OCR on the captured image
+            performOCR(imageDataUrl);
+        }
+
+        // Perform OCR using Tesseract.js
+        async function performOCR(imageDataUrl) {
+            // Show loading state
+            loadingContainer.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            errorContainer.classList.add('hidden');
+            copyBtn.style.display = 'none';
+            
+            try {
+                // Create a Tesseract worker
+                const worker = await Tesseract.createWorker('eng', 1, {
+                    logger: m => {
+                        // Log progress
+                        if (m.status === 'recognizing text') {
+                            const progress = Math.round(m.progress * 100);
+                            document.querySelector('.loading-text').textContent = 
+                                `Processing image with OCR... ${progress}%`;
+                        }
+                    }
+                });
+                
+                // Perform OCR
+                const { data: { text } } = await worker.recognize(imageDataUrl);
+                
+                // Terminate worker
+                await worker.terminate();
+                
+                // Hide loading
+                loadingContainer.classList.add('hidden');
+                
+                // Show results
+                if (text && text.trim()) {
+                    resultText.textContent = text;
+                    resultText.classList.remove('no-text');
+                    resultContainer.classList.remove('hidden');
+                    copyBtn.style.display = 'block';
+                } else {
+                    resultText.innerHTML = '<span class="no-text">No text detected in the image. Try capturing a clearer image with text.</span>';
+                    resultText.classList.add('no-text');
+                    resultContainer.classList.remove('hidden');
+                }
+                
+            } catch (err) {
+                console.error('OCR Error:', err);
+                loadingContainer.classList.add('hidden');
+                showError('Failed to process image. Please try again.');
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            errorText.textContent = message;
+            errorContainer.classList.remove('hidden');
+        }
+
+        // Retake photo
+        function retakePhoto() {
+            // Switch views
+            imageView.classList.add('hidden');
+            cameraView.classList.remove('hidden');
+            
+            // Clear results
+            resultText.textContent = '';
+            errorContainer.classList.add('hidden');
+            
+            // Restart camera
+            initCamera();
+        }
+
+        // Copy text to clipboard
+        async function copyText() {
+            try {
+                const text = resultText.textContent;
+                await navigator.clipboard.writeText(text);
+                
+                // Show feedback
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✅ Copied!';
+                copyBtn.disabled = true;
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.disabled = false;
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text:', err);
+                showError('Failed to copy text to clipboard.');
+            }
+        }
+
+        // Event listeners
+        captureBtn.addEventListener('click', captureImage);
+        retakeBtn.addEventListener('click', retakePhoto);
+        copyBtn.addEventListener('click', copyText);
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            initCamera();
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>
